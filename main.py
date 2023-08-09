@@ -45,96 +45,66 @@ vend_machine = {
     }
 }
 
-# Vend report
+def vend_off():
+    pass
 
 def vend_report():
     print("We have:")
-    for i in vend_machine:
-        print(f"This item: {i} with code {vend_machine[i]['code']} is avaliable, it costs ${vend_machine[i]['price']}, {vend_machine[i]['quantity']} quantity remaining ")
-     
+    for product, details in vend_machine.items():
+        print(f"This item: {product} with code {details['code']} is available, it costs ${details['price']}, {details['quantity']} quantity remaining")
+    vend_init()
 
-# product initialization
-
-def vend_init():
-    
-    vend = input("Input code of what you want to purchase: ")
-    vend_code = ""
-    if vend == "report":
-        vend_report()
-    else:
-        vend_code == int(vend)
-    
-    if product_from_code(vend_code) is False:
-        vend_init()
-    else:
-        product = product_from_code(vend_code)
-        money = payment_process(product)
-        transact(money, product)
-
-# Choosen product from code
 def product_from_code(code):
-    correct_code = False
-    for product in vend_machine:
-        if vend_machine[product]['code'] == code:
-            correct_code = True
+    for product, details in vend_machine.items():
+        if details['code'] == code:
             return product
-    if not correct_code:
-        print("The code inserted is not correct!")
-        return False
-
-
-# Check Availability:
+    print("The code inserted is not correct!")
+    vend_init()
+    return False
 
 def check_availability(product):
-  #  available = False
-    if vend_machine[product]['quantity'] > 0:
-        return True
-    else:
-        return False
-  #  for i in vend_machine:
-   #     if vend_machine[i]['code'] == code:
-    #        available = True
-     #       if vend_machine[i]['quantity'] > 0:
-      #           return True
-       #     else:
-        #         print("This product is out of stock")
-         #        return False
-    #if not available:
-     #    print("The code you input is invalid.")
-      #   return False
+    return vend_machine[product]['quantity'] > 0
 
-# payment processing
-def payment_process(code):
-    if check_availability(code) == True:
-       print("Please, insert coin:")
-       coin = int(input("Insert cents: ")) * 0.01
-       coin = coin + int(input("Insert nikkels: ")) * 0.05
-       coin = coin + int(input("Insert dime: ")) * 0.10
-       coin = coin + int(input("Insert quarter: ")) * 0.25
-       return coin
+def payment_process(product):
+    if check_availability(product):
+        print("Please, insert coins:")
+        coin = int(input("Insert cents: ")) * 0.01
+        coin += int(input("Insert nickels: ")) * 0.05
+        coin += int(input("Insert dimes: ")) * 0.10
+        coin += int(input("Insert quarters: ")) * 0.25
+        return coin
     else:
-       vend_init()
+        vend_init()
 
-# transaction processing
 def transact(money, product):
     vend_price = vend_machine[product]['price']
     if money >= vend_price:
-        print("Transaction in process..")
+        print("Transaction in process...")
         user_amount = money - vend_price
-        if user_amount ==  0:
+        if user_amount == 0:
             print("Money completely used")
         else:
             print(f"You have a balance of {user_amount}")
-        vend_machine[product]["price"] = new_amount
-        vend_machine[product]["quantity"] = new_quantity
+        vend_machine[product]["quantity"] -= 1
 
         vend_init()
     else:
         print("You don't have enough money")
+        vend_init()
 
+def vend_init():
+    vend = input("Input code of what you want to purchase: ")
 
-
-# product dispensing
-
+    if vend == "report":
+        vend_report()
+    elif vend == "off":
+        vend_off()
+    else:
+        vend_code = int(vend)
+    
+        product = product_from_code(vend_code)
+        if product:
+            money = payment_process(product)
+            transact(money, product)
 
 vend_init()
